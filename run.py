@@ -3,6 +3,7 @@
 # 모듈 가져오기
 # pip install selenium
 # pip install bs4
+# pip install pymysql
 
 from selenium import webdriver as wd
 from bs4 import BeautifulSoup as bs
@@ -13,6 +14,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 import time
 from Tour import TourInfo
+import pymysql as my
 
 # 사전에 필요한 정보를 로드 => db or shell or batch 파일에서 인자로 받아서 세팅
 main_url = 'http://tour.interpark.com/'
@@ -49,7 +51,7 @@ except Exception as e:
     print('오류 발생', e)
 
 # 암묵적 대기 => dom이 다 로드 될때까지 대기 하고 먼저 로드되면 바로 진행
-# 요소를 찾을 특정 시간 동안 dom 풀링을 지시 예를 들어 10 초이내 라도 
+# 요소를 찾을 특정 시간 동안 dom 풀링을 지시 예를 들어 10 초이내 라도
 # 발견 되면 진행
 driver.implicitly_wait(10)
 
@@ -93,7 +95,7 @@ for page in range(1,2): #16:
             # 데이터가 부족하거나 없을수도 있으므로 직접 인덱스로 표현은 위험성이 있음
             obj = TourInfo(
                 li.find_element_by_css_selector('h5.proTit').text,
-                li.find_element_by_css_selector('.proPrice').text,                
+                li.find_element_by_css_selector('.proPrice').text,
                 li.find_elements_by_css_selector('.info-row .proInfo')[1].text,
                 li.find_element_by_css_selector('a').get_attribute('onclick'),
                 li.find_element_by_css_selector('img').get_attribute('src')
@@ -110,7 +112,7 @@ for tour in tour_list:
     print(type(tour))
     # 링크 데이터에서 실데이터 획득
     # 분해
-    arr = tour.link.split(',')    
+    arr = tour.link.split(',')
     if arr:
         # 대체
         link = arr[0].replace('searchModule.OnClickDetail(', '')
@@ -122,8 +124,21 @@ for tour in tour_list:
         # 현재 페이지를 BeautifulSoup의 dom으로 구성
         soup = bs(driver.page_source, 'html.parser')
         # 현재 상세 정보 페이지에서 스케쥴 정보 획득
-        data = soup.select('.schedule-all')
+        data = soup.select('.tip_cover')
         print(type(data))
+        # db 입력(mariaDB 이용)
+        # pip install pymysql
+        # create database pythonDB;
+        # table tbl_keyword
+        # keyword varchar
+        # table tbl_crawlingData
+        # id
+        # title varchar
+        # price varchar
+        # area varchar
+        # contents text
+        # keyword varchar
+        # regdate timestamp
 
 
 # 종료
